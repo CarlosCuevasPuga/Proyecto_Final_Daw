@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passport Pal Motril (PAPM)</title>
+    <meta name="description" content="Descubre rutas gastronómicas, consigue recompensas y disfruta de la mejor comida en Motril.">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Boxicons for icons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+
+    <!-- App Header -->
+    <header class="app-header">
+        <div class="logo">
+            <i class='bx bxs-map-pin'></i> PAPM
+        </div>
+        <div class="user-status" id="userStatus" style="display: none;">
+            <div class="points">
+                <i class='bx bxs-star'></i> <span id="userPoints">0</span> pts
+            </div>
+            <div class="profile-icon">
+                <i class='bx bx-user-circle'></i>
+            </div>
+        </div>
+        <div class="auth-buttons" id="authButtons">
+            <button class="btn btn-outline" onclick="showModal('loginModal')">Entrar</button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="app-content">
+        
+        <!-- Hero Section -->
+        <section class="hero glass-panel">
+            <h1>Descubre el Sabor de Motril</h1>
+            <p>Sigue nuestras rutas gastronómicas, escanea, puntúa y consigue descuentos exclusivos.</p>
+            <div class="weather-widget" id="weatherWidget">
+                <i class='bx bx-sun'></i> <span>Cargando clima...</span>
+            </div>
+        </section>
+
+        <!-- Routes Section -->
+        <section class="section-container">
+            <div class="section-header">
+                <h2>Rutas Recomendadas</h2>
+                <span class="badge">Nuevo</span>
+            </div>
+            
+            <div class="routes-container" id="routesContainer">
+                <div class="loader">Cargando rutas...</div>
+                <!-- Rutas renderizadas desde JS -->
+            </div>
+        </section>
+
+        <!-- Rewards Section -->
+        <section class="section-container">
+            <div class="section-header">
+                <h2>Tus Recompensas</h2>
+            </div>
+            <div class="rewards-container" id="rewardsContainer">
+                <p>Inicia sesión para ver y canjear tus puntos por cupones de descuento.</p>
+                <!-- Cupones renderizados desde JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Navigation (Mobile First) -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active">
+            <i class='bx bxs-home'></i>
+            <span>Inicio</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class='bx bxs-map-alt'></i>
+            <span>Mapa</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class='bx bxs-coupon'></i>
+            <span>Cupones</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class='bx bxs-crown'></i>
+            <span>Premium</span>
+        </a>
+    </nav>
+
+    <!-- Modals -->
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('loginModal')">&times;</span>
+            <h2>Iniciar Sesión</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+            </form>
+            <p class="text-center mt-2">¿No tienes cuenta? <a href="#" onclick="closeModal('loginModal'); showModal('registerModal');">Regístrate</a></p>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('registerModal')">&times;</span>
+            <h2>Registro</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <input type="text" id="regName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="regEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="regPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Crear Cuenta</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/weather.js"></script>
+</body>
+</html>
