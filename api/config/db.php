@@ -1,7 +1,7 @@
 <?php
 // api/config/db.php
 
-$host = 'localhost';
+$host = '127.0.0.1';
 $db_name = 'papm_db';
 $username = 'root';
 $password = '';

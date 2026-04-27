@@ -42,7 +42,8 @@ if ($action == 'get_coupons') {
                     $stmt_uc->execute([$data->user_id, $data->coupon_id]);
                     
                     $conn->commit();
-                    echo json_encode(array("status" => "success", "message" => "Coupon purchased successfully"));
+                    $new_points = $user['points'] - $coupon['points_cost'];
+                    echo json_encode(array("status" => "success", "message" => "Coupon purchased successfully", "new_points" => $new_points));
                 } else {
                     $conn->rollBack();
                     http_response_code(400);
@@ -89,8 +90,12 @@ if ($action == 'get_coupons') {
                 $stmt_c = $conn->prepare("INSERT INTO user_completed_routes (user_id, route_id) VALUES (?, ?)");
                 $stmt_c->execute([$data->user_id, $data->route_id]);
                 
+                $stmt_np = $conn->prepare("SELECT points FROM users WHERE id = ?");
+                $stmt_np->execute([$data->user_id]);
+                $new_user_data = $stmt_np->fetch();
+
                 $conn->commit();
-                echo json_encode(array("status" => "success", "message" => "Route completed! You earned " . $route['reward_points'] . " points."));
+                echo json_encode(array("status" => "success", "message" => "Route completed! You earned " . $route['reward_points'] . " points.", "new_points" => $new_user_data['points']));
             } catch (Exception $e) {
                 $conn->rollBack();
                 http_response_code(500);

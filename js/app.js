@@ -178,8 +178,7 @@ async function completeRoute(routeId) {
         
         alert(data.message);
         if (data.status === 'success') {
-            // Reload user session from server logic ideally, here we mock reload
-            currentUser.points = parseInt(currentUser.points) + 100; // Need exact points from route technically
+            currentUser.points = data.new_points;
             localStorage.setItem('papm_user', JSON.stringify(currentUser));
             updateUIForUser();
         }
@@ -201,8 +200,9 @@ async function buyCoupon(couponId) {
         
         alert(data.message);
         if (data.status === 'success') {
-            // We would reload user points properly
-            location.reload();
+            currentUser.points = data.new_points;
+            localStorage.setItem('papm_user', JSON.stringify(currentUser));
+            updateUIForUser();
         }
     } catch (err) {
         alert("Error de conexión");
