@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Passport Pal Motril (PAPM)</title>
-    <meta name="description" content="Descubre rutas gastronómicas, consigue recompensas y disfruta de la mejor comida en Motril.">
+    <title>Premium - Passport Pal Motril</title>
+    <meta name="description" content="Suscríbete a Premium.">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <!-- CSS -->
@@ -34,34 +34,24 @@
 
     <!-- Main Content Area -->
     <main class="app-content">
-        
-        <!-- Hero Section -->
-        <section class="hero glass-panel">
-            <h1>Descubre el Sabor de Motril</h1>
-            <p>Sigue nuestras rutas gastronómicas, escanea, puntúa y consigue descuentos exclusivos.</p>
-            <div class="weather-widget" id="weatherWidget">
-                <i class='bx bx-sun'></i> <span>Cargando clima...</span>
-            </div>
-        </section>
-
-        <!-- Routes Section -->
         <section class="section-container">
             <div class="section-header">
-                <h2>Rutas Recomendadas</h2>
-                <span class="badge">Nuevo</span>
+                <h2>PAPM Premium</h2>
+                <span class="badge" style="background: var(--secondary-color); color: var(--text-main);">Pro</span>
             </div>
-            
-            <div class="routes-container" id="routesContainer">
-                <div class="loader">Cargando rutas...</div>
-                <!-- Rutas renderizadas desde JS -->
+            <div class="route-card premium">
+                <div class="route-header">
+                    <div class="route-title"><i class='bx bxs-crown' style='color: var(--secondary-color)'></i> Suscripción Premium</div>
+                </div>
+                <div class="route-desc">Desbloquea rutas exclusivas, descuentos multiplicados y eventos VIP en Motril.</div>
+                <button class="btn btn-primary btn-block">Mejorar a Premium</button>
             </div>
         </section>
-
     </main>
 
     <!-- Bottom Navigation (Mobile First) -->
     <nav class="bottom-nav">
-        <a href="index.html" class="nav-item active">
+        <a href="index.html" class="nav-item">
             <i class='bx bxs-home'></i>
             <span>Inicio</span>
         </a>
@@ -73,7 +63,7 @@
             <i class='bx bxs-coupon'></i>
             <span>Cupones</span>
         </a>
-        <a href="premium.html" class="nav-item">
+        <a href="premium.html" class="nav-item active">
             <i class='bx bxs-crown'></i>
             <span>Premium</span>
         </a>
