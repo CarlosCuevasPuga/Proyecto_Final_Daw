@@ -429,3 +429,15 @@ body {
 .text-center { text-align: center; }
 .mt-2 { margin-top: 1rem; }
 a { color: var(--primary-color); text-decoration: none; }
+
+/* Map Container */
+.map_container {
+width: 85%; 
+height: 800px; 
+border-radius: 12px; 
+margin: 0 auto;
+z-index: 0;
+display: flex;
+justify-content: center;
+align-items: center;
+}  
