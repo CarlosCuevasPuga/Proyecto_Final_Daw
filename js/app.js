@@ -67,6 +67,38 @@ function checkSession() {
     if (user) {
         currentUser = JSON.parse(user);
         updateUIForUser();
+        // Verificar estado actual del usuario en la BD
+        refreshUserStatus();
+    }
+}
+
+async function refreshUserStatus() {
+    // Actualizar el estado del usuario desde la BD (especialmente el is_premium)
+    if (!currentUser) return;
+    
+    try {
+        const res = await fetch(API_BASE + 'user.php?action=get_user_status', {
+            method: 'POST',
+            body: JSON.stringify({ user_id: currentUser.id }),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        
+        if (data.status === 'success') {
+            currentUser = {
+                id: data.data.id,
+                name: data.data.name,
+                email: data.data.email,
+                points: data.data.points,
+                is_premium: data.data.is_premium
+            };
+            localStorage.setItem('papm_user', JSON.stringify(currentUser));
+            updateUIForUser();
+            // Recargar las rutas para que se actualice el estado de premium
+            loadRoutes();
+        }
+    } catch (err) {
+        console.error('Error refreshing user status:', err);
     }
 }
 
@@ -212,8 +244,37 @@ async function loadCoupons() {
 async function completeRoute(routeId, isPremium = false) {
     if (!currentUser) return alert("Inicia sesión para completar rutas y ganar puntos.");
     
-    if (isPremium && !currentUser.is_premium) {
-        return alert("Esta es una ruta premium. Debes tener una suscripción premium para completarla.");
+    // Si es una ruta premium, verificar primero el estado actual del usuario
+    if (isPremium) {
+        try {
+            // Obtener estado actual del usuario desde la BD
+            const userStatusRes = await fetch(API_BASE + 'user.php?action=get_user_status', {
+                method: 'POST',
+                body: JSON.stringify({ user_id: currentUser.id }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const userStatusData = await userStatusRes.json();
+            
+            if (userStatusData.status === 'success') {
+                // Actualizar currentUser con el estado actual
+                currentUser = {
+                    id: userStatusData.data.id,
+                    name: userStatusData.data.name,
+                    email: userStatusData.data.email,
+                    points: userStatusData.data.points,
+                    is_premium: userStatusData.data.is_premium
+                };
+                localStorage.setItem('papm_user', JSON.stringify(currentUser));
+                
+                // Verificar si es premium
+                if (!currentUser.is_premium) {
+                    return alert("Esta es una ruta premium. Debes tener una suscripción premium para completarla.");
+                }
+            }
+        } catch (err) {
+            console.error('Error verificando estado premium:', err);
+            return alert("Error al verificar el estado de tu cuenta.");
+        }
     }
     
     try {
@@ -229,6 +290,7 @@ async function completeRoute(routeId, isPremium = false) {
             currentUser.points = data.new_points;
             localStorage.setItem('papm_user', JSON.stringify(currentUser));
             updateUIForUser();
+            loadRoutes();
         }
     } catch (err) {
         alert("Error de conexión");

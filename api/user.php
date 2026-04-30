@@ -7,7 +7,25 @@ include_once 'config/db.php';
 
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
-if ($action == 'get_coupons') {
+if ($action == 'get_user_status') {
+    // Obtener el estado actual del usuario desde la BD
+    $data = json_decode(file_get_contents("php://input"));
+    if (!empty($data->user_id)) {
+        $stmt = $conn->prepare("SELECT id, name, email, points, is_premium FROM users WHERE id = ?");
+        $stmt->execute([$data->user_id]);
+        $user = $stmt->fetch();
+        
+        if ($user) {
+            echo json_encode(array("status" => "success", "data" => $user));
+        } else {
+            http_response_code(404);
+            echo json_encode(array("status" => "error", "message" => "User not found"));
+        }
+    } else {
+        http_response_code(400);
+        echo json_encode(array("status" => "error", "message" => "User ID required"));
+    }
+} elseif ($action == 'get_coupons') {
     $stmt = $conn->prepare("
         SELECT c.*, r.name as restaurant_name 
         FROM coupons c 
