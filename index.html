@@ -17,14 +17,26 @@
     <!-- App Header -->
     <header class="app-header">
         <div class="logo">
-            <i class='bx bxs-map-pin'></i> PAPM
+            <img class="logo" src="./img/logo.png" alt="Logo PAPM"> PAPM
         </div>
         <div class="user-status" id="userStatus" style="display: none;">
             <div class="points">
                 <i class='bx bxs-star'></i> <span id="userPoints">0</span> pts
             </div>
-            <div class="profile-icon">
-                <i class='bx bx-user-circle'></i>
+            <div class="profile-dropdown">
+                <button class="profile-icon" onclick="toggleProfileMenu()">
+                    <i class='bx bx-user-circle'></i>
+                </button>
+                <div class="dropdown-menu" id="profileMenu">
+                    <div class="dropdown-item" onclick="viewProfile()">
+                        <i class='bx bx-user'></i>
+                        <span>Mi Perfil</span>
+                    </div>
+                    <div class="dropdown-item" onclick="logout()">
+                        <i class='bx bx-log-out'></i>
+                        <span>Cerrar Sesión</span>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="auth-buttons" id="authButtons">
@@ -124,7 +136,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/app.js"></script>
-    <script src="js/weather.js"></script>
+    <script src="./js/app.js"></script>
+    <script src="./js/weather.js"></script>
 </body>
 </html>

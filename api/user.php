@@ -75,9 +75,23 @@ if ($action == 'get_coupons') {
             exit;
         }
         
-        $stmt_r = $conn->prepare("SELECT reward_points FROM routes WHERE id = ?");
+        // Get route info and check if it's premium
+        $stmt_r = $conn->prepare("SELECT reward_points, is_premium FROM routes WHERE id = ?");
         $stmt_r->execute([$data->route_id]);
         $route = $stmt_r->fetch();
+        
+        // Check if user is premium and route requires it
+        if ($route && $route['is_premium']) {
+            $stmt_u = $conn->prepare("SELECT is_premium FROM users WHERE id = ?");
+            $stmt_u->execute([$data->user_id]);
+            $user = $stmt_u->fetch();
+            
+            if (!$user || !$user['is_premium']) {
+                http_response_code(403);
+                echo json_encode(array("status" => "error", "message" => "Debes tener una suscripción premium para completar rutas premium"));
+                exit;
+            }
+        }
         
         if ($route) {
             $conn->beginTransaction();

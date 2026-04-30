@@ -24,6 +24,43 @@ function closeModal(id) {
     document.getElementById(id).classList.remove('show');
 }
 
+// Profile Dropdown
+function toggleProfileMenu() {
+    const profileMenu = document.getElementById('profileMenu');
+    profileMenu.classList.toggle('show');
+}
+
+function viewProfile() {
+    if (currentUser) {
+        alert(`Perfil: ${currentUser.name}\nEmail: ${currentUser.email}\nPuntos: ${currentUser.points}`);
+        closeProfileMenu();
+    }
+}
+
+function logout() {
+    localStorage.removeItem('papm_user');
+    currentUser = null;
+    updateUIForUser();
+    closeProfileMenu();
+    alert('Sesión cerrada correctamente');
+    // Recargar rutas para que se actualice la interfaz
+    loadRoutes();
+}
+
+function closeProfileMenu() {
+    const profileMenu = document.getElementById('profileMenu');
+    profileMenu.classList.remove('show');
+}
+
+// Cerrar dropdown al hacer click fuera
+document.addEventListener('click', (e) => {
+    const profileDropdown = document.querySelector('.profile-dropdown');
+    const profileMenu = document.getElementById('profileMenu');
+    if (profileDropdown && !profileDropdown.contains(e.target) && profileMenu) {
+        profileMenu.classList.remove('show');
+    }
+});
+
 // Auth
 function checkSession() {
     const user = localStorage.getItem('papm_user');
@@ -113,6 +150,13 @@ async function loadRoutes() {
                 const isPremium = route.is_premium == 1;
                 card.className = `route-card ${isPremium ? 'premium' : ''}`;
                 
+                // Verificar si el usuario puede completar esta ruta
+                const canCompleteRoute = !isPremium || (currentUser && currentUser.is_premium);
+                const buttonClass = canCompleteRoute ? 'btn btn-outline' : 'btn btn-outline disabled';
+                const buttonText = isPremium && !canCompleteRoute 
+                    ? '🔒 Solo Premium' 
+                    : 'Completar Ruta';
+                
                 card.innerHTML = `
                     <div class="route-header">
                         <div class="route-title">
@@ -124,7 +168,7 @@ async function loadRoutes() {
                         </div>
                     </div>
                     <div class="route-desc">${route.description}</div>
-                    <button class="btn btn-outline" onclick="completeRoute(${route.id})">Completar Ruta</button>
+                    <button class="${buttonClass}" onclick="completeRoute(${route.id}, ${isPremium})" ${!canCompleteRoute ? 'disabled' : ''}>${buttonText}</button>
                 `;
                 container.appendChild(card);
             });
@@ -165,8 +209,12 @@ async function loadCoupons() {
 }
 
 // Interactions
-async function completeRoute(routeId) {
+async function completeRoute(routeId, isPremium = false) {
     if (!currentUser) return alert("Inicia sesión para completar rutas y ganar puntos.");
+    
+    if (isPremium && !currentUser.is_premium) {
+        return alert("Esta es una ruta premium. Debes tener una suscripción premium para completarla.");
+    }
     
     try {
         const res = await fetch(API_BASE + 'user.php?action=complete_route', {
