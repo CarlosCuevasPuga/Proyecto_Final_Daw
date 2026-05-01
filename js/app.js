@@ -175,20 +175,64 @@ async function loadRoutes() {
         const res = await fetch(API_BASE + 'routes.php?action=list');
         const data = await res.json();
         
+        let activeRoutes = [];
+        let completedRoutes = [];
+        if (currentUser) {
+            try {
+                const activeRes = await fetch(API_BASE + 'user.php?action=get_active_routes&user_id=' + currentUser.id);
+                const activeData = await activeRes.json();
+                if (activeData.status === 'success') {
+                    const seenActive = new Set();
+                    activeRoutes = activeData.data.filter(route => {
+                        if (seenActive.has(route.id)) return false;
+                        seenActive.add(route.id);
+                        return true;
+                    }).map(route => route.id);
+                }
+                const completedRes = await fetch(API_BASE + 'user.php?action=get_completed_routes&user_id=' + currentUser.id);
+                const completedData = await completedRes.json();
+                if (completedData.status === 'success') {
+                    completedRoutes = completedData.data.map(routeId => Number(routeId));
+                }
+            } catch (err) {
+                console.error('Error obteniendo estado de rutas:', err);
+            }
+        }
+
         if (data.status === 'success') {
+            const seenRoutes = new Set();
+            const uniqueRoutes = data.data.filter(route => {
+                if (seenRoutes.has(route.id)) return false;
+                seenRoutes.add(route.id);
+                return true;
+            });
+
             container.innerHTML = '';
-            data.data.forEach(route => {
+            uniqueRoutes.forEach(route => {
                 const card = document.createElement('div');
                 const isPremium = route.is_premium == 1;
                 card.className = `route-card ${isPremium ? 'premium' : ''}`;
                 
-                // Verificar si el usuario puede completar esta ruta
-                const canCompleteRoute = !isPremium || (currentUser && currentUser.is_premium);
-                const buttonClass = canCompleteRoute ? 'btn btn-outline' : 'btn btn-outline disabled';
-                const buttonText = isPremium && !canCompleteRoute 
-                    ? '🔒 Solo Premium' 
-                    : 'Completar Ruta';
-                
+                const canStartRoute = !isPremium || (currentUser && currentUser.is_premium);
+                let buttonClass = canStartRoute ? 'btn btn-outline' : 'btn btn-outline disabled';
+                let buttonText = isPremium && !canStartRoute ? '🔒 Solo Premium' : 'Iniciar Ruta';
+                let buttonDisabled = !canStartRoute;
+                let buttonOnclick = `completeRoute(${route.id}, ${isPremium})`;
+
+                if (currentUser) {
+                    if (completedRoutes.includes(route.id)) {
+                        buttonClass = 'btn btn-success disabled';
+                        buttonText = '✓ Completada';
+                        buttonDisabled = true;
+                        buttonOnclick = '';
+                    } else if (activeRoutes.includes(route.id)) {
+                        buttonClass = 'btn btn-warning disabled';
+                        buttonText = 'En Progreso';
+                        buttonDisabled = true;
+                        buttonOnclick = '';
+                    }
+                }
+
                 card.innerHTML = `
                     <div class="route-header">
                         <div class="route-title">
@@ -200,7 +244,7 @@ async function loadRoutes() {
                         </div>
                     </div>
                     <div class="route-desc">${route.description}</div>
-                    <button class="${buttonClass}" onclick="completeRoute(${route.id}, ${isPremium})" ${!canCompleteRoute ? 'disabled' : ''}>${buttonText}</button>
+                    <button class="${buttonClass}" ${buttonOnclick ? `onclick="${buttonOnclick}"` : ''} ${buttonDisabled ? 'disabled' : ''}>${buttonText}</button>
                 `;
                 container.appendChild(card);
             });
@@ -247,7 +291,6 @@ async function completeRoute(routeId, isPremium = false) {
     // Si es una ruta premium, verificar primero el estado actual del usuario
     if (isPremium) {
         try {
-            // Obtener estado actual del usuario desde la BD
             const userStatusRes = await fetch(API_BASE + 'user.php?action=get_user_status', {
                 method: 'POST',
                 body: JSON.stringify({ user_id: currentUser.id }),
@@ -256,7 +299,6 @@ async function completeRoute(routeId, isPremium = false) {
             const userStatusData = await userStatusRes.json();
             
             if (userStatusData.status === 'success') {
-                // Actualizar currentUser con el estado actual
                 currentUser = {
                     id: userStatusData.data.id,
                     name: userStatusData.data.name,
@@ -266,7 +308,6 @@ async function completeRoute(routeId, isPremium = false) {
                 };
                 localStorage.setItem('papm_user', JSON.stringify(currentUser));
                 
-                // Verificar si es premium
                 if (!currentUser.is_premium) {
                     return alert("Esta es una ruta premium. Debes tener una suscripción premium para completarla.");
                 }
@@ -278,7 +319,7 @@ async function completeRoute(routeId, isPremium = false) {
     }
     
     try {
-        const res = await fetch(API_BASE + 'user.php?action=complete_route', {
+        const res = await fetch(API_BASE + 'user.php?action=start_route', {
             method: 'POST',
             body: JSON.stringify({ user_id: currentUser.id, route_id: routeId }),
             headers: { 'Content-Type': 'application/json' }
@@ -287,10 +328,10 @@ async function completeRoute(routeId, isPremium = false) {
         
         alert(data.message);
         if (data.status === 'success') {
-            currentUser.points = data.new_points;
-            localStorage.setItem('papm_user', JSON.stringify(currentUser));
-            updateUIForUser();
             loadRoutes();
+            if (window.location.pathname.includes('../mapa.html')) {
+                loadActiveRoutesOnMap();
+            }
         }
     } catch (err) {
         alert("Error de conexión");

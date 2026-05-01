@@ -78,20 +78,39 @@ CREATE TABLE IF NOT EXISTS user_completed_routes (
     FOREIGN KEY (route_id) REFERENCES routes(id) ON DELETE CASCADE
 );
 
+-- Tabla de Rutas activas/en progreso por el usuario
+CREATE TABLE IF NOT EXISTS user_active_routes (
+    user_id INT,
+    route_id INT,
+    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, route_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (route_id) REFERENCES routes(id) ON DELETE CASCADE
+);
+
 -- Insertar algunos datos de prueba
 INSERT INTO restaurants (name, description, address, lat, lng, category) VALUES 
 ('Bar El Paso', 'Tapas tradicionales y ambiente local.', 'Plaza de España 1, Motril', 36.7423, -3.5186, 'Tapas'),
 ('Chiringuito Hoyo 19', 'Pescaito frito y vistas al mar.', 'Paseo Marítimo, Playa Granada, Motril', 36.7118, -3.5412, 'Marisco'),
-('Restaurante Zarcillo', 'Cocina de autor y vinos.', 'Calle Nueva 5, Motril', 36.7445, -3.5170, 'Gourmet');
+('Restaurante Zarcillo', 'Cocina de autor y vinos.', 'Calle Nueva 5, Motril', 36.7445, -3.5170, 'Gourmet'),
+('Café Paradiso', 'Café con terraza y pasteles caseros.', 'Plaza de la Constitución 8, Motril', 36.7452, -3.5168, 'Café'),
+('La Bodega del Mar', 'Vinos locales y tapas de marisco.', 'Calle Real 15, Motril', 36.7438, -3.5175, 'Tapas'),
+('Heladería La Tropical', 'Helados artesanales con frutas tropicales.', 'Paseo de los Álamos 22, Motril', 36.7405, -3.5192, 'Postres'),
+('Restaurante El Faro', 'Cocina mediterránea con vistas al mar.', 'Avenida del Mediterráneo 45, Motril', 36.7150, -3.5350, 'Mediterránea'),
+('Bar La Plaza', 'Cervezas artesanales y raciones.', 'Plaza de la Aurora 3, Motril', 36.7460, -3.5160, 'Tapas'),
+('Pizzeria Bella Italia', 'Pizzas al estilo italiano con ingredientes locales.', 'Calle de los Naranjos 12, Motril', 36.7415, -3.5188, 'Italiana'),
+('Churrería Los Ángeles', 'Churros y chocolate caliente tradicionales.', 'Mercado Municipal, Motril', 36.7440, -3.5178, 'Postres');
 
 INSERT INTO routes (name, description, reward_points, is_premium) VALUES 
-('Ruta Centro Histórico', 'Descubre los mejores bares de tapas en el centro de Motril.', 150, FALSE),
-('Ruta del Pescador (Premium)', 'Disfruta del mejor marisco cerca de la costa con vistas exclusivas.', 250, TRUE);
+('Ruta del Pescador (Premium)', 'Disfruta del mejor marisco en los chiringuitos de la costa de Motril.', 250, TRUE),
+('Ruta Dulce Motril', 'Recorre las mejores heladerías y pastelerías de Motril.', 120, FALSE);
 
 INSERT INTO route_restaurants (route_id, restaurant_id, order_num) VALUES 
-(1, 1, 1),
-(1, 3, 2),
-(2, 2, 1);
+(2, 2, 1), -- Ruta Pescador: Chiringuito Hoyo 19
+(2, 7, 2), -- Restaurante El Faro
+(3, 4, 1), -- Ruta Dulce: Café Paradiso
+(3, 6, 2), -- Heladería La Tropical
+(3, 10, 3); -- Churrería Los Ángeles
 
 INSERT INTO coupons (title, description, points_cost, discount_code, restaurant_id) VALUES 
 ('Bebida Gratis', 'Consigue una bebida gratis con tu próxima tapa.', 100, 'BEBIDA100', 1),
