@@ -30,13 +30,6 @@ function toggleProfileMenu() {
     profileMenu.classList.toggle('show');
 }
 
-function viewProfile() {
-    if (currentUser) {
-        alert(`Perfil: ${currentUser.name}\nEmail: ${currentUser.email}\nPuntos: ${currentUser.points}`);
-        closeProfileMenu();
-    }
-}
-
 function logout() {
     localStorage.removeItem('papm_user');
     currentUser = null;
@@ -94,6 +87,9 @@ async function refreshUserStatus() {
             };
             localStorage.setItem('papm_user', JSON.stringify(currentUser));
             updateUIForUser();
+            if (typeof renderProfile === 'function') {
+                renderProfile();
+            }
             // Recargar las rutas para que se actualice el estado de premium
             loadRoutes();
         }
@@ -110,6 +106,9 @@ function updateUIForUser() {
     } else {
         document.getElementById('authButtons').style.display = 'block';
         document.getElementById('userStatus').style.display = 'none';
+    }
+    if (typeof renderProfile === 'function') {
+        renderProfile();
     }
 }
 
