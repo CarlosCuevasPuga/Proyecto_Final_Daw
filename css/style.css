@@ -277,6 +277,19 @@ body {
     margin-bottom: 1rem;
 }
 
+.route-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.route-status {
+    font-weight: 700;
+    color: var(--primary-dark);
+}
+
 /* Buttons */
 .btn {
     border: none;
@@ -306,6 +319,15 @@ body {
 .btn-outline:hover {
     background: var(--primary-light);
     color: var(--primary-dark);
+}
+
+.btn-danger {
+    background: #e74c3c;
+    color: #ffffff;
+}
+
+.btn-danger:hover {
+    background: #c0392b;
 }
 
 .btn-outline.disabled,

@@ -217,6 +217,7 @@ async function loadRoutes() {
                 let buttonText = isPremium && !canStartRoute ? '🔒 Solo Premium' : 'Iniciar Ruta';
                 let buttonDisabled = !canStartRoute;
                 let buttonOnclick = `completeRoute(${route.id}, ${isPremium})`;
+                let activeBadge = '';
 
                 if (currentUser) {
                     if (completedRoutes.includes(route.id)) {
@@ -225,10 +226,11 @@ async function loadRoutes() {
                         buttonDisabled = true;
                         buttonOnclick = '';
                     } else if (activeRoutes.includes(route.id)) {
-                        buttonClass = 'btn btn-warning disabled';
-                        buttonText = 'En Progreso';
-                        buttonDisabled = true;
-                        buttonOnclick = '';
+                        activeBadge = '<div class="route-status">En Progreso</div>';
+                        buttonClass = 'btn btn-danger';
+                        buttonText = 'Cancelar Progreso';
+                        buttonDisabled = false;
+                        buttonOnclick = `cancelRoute(${route.id})`;
                     }
                 }
 
@@ -243,7 +245,10 @@ async function loadRoutes() {
                         </div>
                     </div>
                     <div class="route-desc">${route.description}</div>
-                    <button class="${buttonClass}" ${buttonOnclick ? `onclick="${buttonOnclick}"` : ''} ${buttonDisabled ? 'disabled' : ''}>${buttonText}</button>
+                    <div class="route-meta">
+                        ${activeBadge}
+                        <button class="${buttonClass}" ${buttonOnclick ? `onclick="${buttonOnclick}"` : ''} ${buttonDisabled ? 'disabled' : ''}>${buttonText}</button>
+                    </div>
                 `;
                 container.appendChild(card);
             });
@@ -328,11 +333,36 @@ async function completeRoute(routeId, isPremium = false) {
         alert(data.message);
         if (data.status === 'success') {
             loadRoutes();
-            if (window.location.pathname.includes('../mapa.html')) {
+            if (window.location.pathname.includes('mapa.html')) {
                 loadActiveRoutesOnMap();
             }
         }
     } catch (err) {
+        alert("Error de conexión");
+    }
+}
+
+async function cancelRoute(routeId) {
+    if (!currentUser) return alert("Inicia sesión para cancelar la ruta.");
+    if (!confirm('¿Estás seguro de que quieres cancelar esta ruta?')) return;
+
+    try {
+        const res = await fetch(API_BASE + 'user.php?action=cancel_route', {
+            method: 'POST',
+            body: JSON.stringify({ user_id: currentUser.id, route_id: routeId }),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+
+        alert(data.message);
+        if (data.status === 'success') {
+            loadRoutes();
+            if (window.location.pathname.includes('mapa.html')) {
+                loadActiveRoutesOnMap();
+            }
+        }
+    } catch (err) {
+        console.error(err);
         alert("Error de conexión");
     }
 }

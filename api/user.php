@@ -221,6 +221,25 @@ if ($action == 'get_user_status') {
         http_response_code(400);
         echo json_encode(array("status" => "error", "message" => "Incomplete data"));
     }
+} elseif ($action == 'cancel_route') {
+    $data = json_decode(file_get_contents("php://input"));
+    if (!empty($data->user_id) && !empty($data->route_id)) {
+        $stmt_check_active = $conn->prepare("SELECT * FROM user_active_routes WHERE user_id = ? AND route_id = ?");
+        $stmt_check_active->execute([$data->user_id, $data->route_id]);
+        if (!$stmt_check_active->fetch()) {
+            http_response_code(400);
+            echo json_encode(array("status" => "error", "message" => "No hay ninguna ruta en progreso para cancelar"));
+            exit;
+        }
+
+        $stmt_del_active = $conn->prepare("DELETE FROM user_active_routes WHERE user_id = ? AND route_id = ?");
+        $stmt_del_active->execute([$data->user_id, $data->route_id]);
+
+        echo json_encode(array("status" => "success", "message" => "Progreso de ruta cancelado correctamente."));
+    } else {
+        http_response_code(400);
+        echo json_encode(array("status" => "error", "message" => "Incomplete data"));
+    }
 } elseif ($action == 'get_completed_routes') {
     if (!empty($_GET['user_id'])) {
         $stmt = $conn->prepare("
