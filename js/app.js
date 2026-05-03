@@ -24,6 +24,38 @@ function closeModal(id) {
     document.getElementById(id).classList.remove('show');
 }
 
+// Notification Popup
+function showNotification(message, type = 'info') {
+    const notification = document.getElementById('notificationPopup');
+    const notificationMessage = document.getElementById('notificationMessage');
+    const notificationIcon = document.getElementById('notificationIcon');
+
+    if (notification && notificationMessage && notificationIcon) {
+        notificationMessage.textContent = message;
+
+        // Set icon based on type
+        switch (type) {
+            case 'success':
+                notificationIcon.className = 'bx bxs-check-circle';
+                break;
+            case 'error':
+                notificationIcon.className = 'bx bxs-error-circle';
+                break;
+            case 'warning':
+                notificationIcon.className = 'bx bxs-error';
+                break;
+            default:
+                notificationIcon.className = 'bx bxs-info-circle';
+        }
+
+        showModal('notificationPopup');
+        setTimeout(() => closeModal('notificationPopup'), 3000);
+    } else {
+        // Fallback to alert if elements not found
+        alert(message);
+    }
+}
+
 // Profile Dropdown
 function toggleProfileMenu() {
     const profileMenu = document.getElementById('profileMenu');
@@ -35,14 +67,18 @@ function logout() {
     currentUser = null;
     updateUIForUser();
     closeProfileMenu();
-    alert('Sesión cerrada correctamente');
+    closeModal('profilePopup');
+    showNotification('Sesión cerrada correctamente', 'success');
     // Recargar rutas para que se actualice la interfaz
     loadRoutes();
+    loadUserCoupons(); // Recargar cupones si está en la página
 }
 
 function closeProfileMenu() {
     const profileMenu = document.getElementById('profileMenu');
-    profileMenu.classList.remove('show');
+    if (profileMenu) {
+        profileMenu.classList.remove('show');
+    }
 }
 
 // Cerrar dropdown al hacer click fuera
@@ -107,6 +143,16 @@ function updateUIForUser() {
         document.getElementById('authButtons').style.display = 'block';
         document.getElementById('userStatus').style.display = 'none';
     }
+
+    const popupUserName = document.getElementById('popupUserName');
+    const popupUserPoints = document.getElementById('popupUserPoints');
+    if (popupUserName) {
+        popupUserName.textContent = currentUser ? (currentUser.name || currentUser.email) : '';
+    }
+    if (popupUserPoints) {
+        popupUserPoints.textContent = currentUser ? currentUser.points : '0';
+    }
+
     if (typeof renderProfile === 'function') {
         renderProfile();
     }
@@ -129,14 +175,20 @@ async function handleLogin(e) {
             localStorage.setItem('papm_user', JSON.stringify(data.user));
             currentUser = data.user;
             updateUIForUser();
+            loadUserCoupons(); // Cargar cupones si está en la página
             closeModal('loginModal');
-            alert('¡Bienvenido de nuevo!');
+            const welcomeName = document.getElementById('welcomePopupName');
+            if (welcomeName) {
+                welcomeName.textContent = data.user.name ? `¡Hola, ${data.user.name}!` : '';
+            }
+            showModal('welcomePopup');
+            setTimeout(() => closeModal('welcomePopup'), 2200);
         } else {
-            alert(data.message || 'Error en el login');
+            showNotification(data.message || 'Error en el login', 'error');
         }
     } catch (err) {
         console.error(err);
-        alert('Error de conexión');
+        showNotification('Error de conexión', 'error');
     }
 }
 
@@ -288,9 +340,70 @@ async function loadCoupons() {
     }
 }
 
+async function loadUserCoupons() {
+    const container = document.getElementById('userCouponsList');
+    if (!container) return; // Si no existe el contenedor, no hacer nada
+    
+    if (!currentUser) {
+        container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-muted);">Inicia sesión para ver tus cupones canjeados.</p>';
+        return;
+    }
+
+    try {
+        const res = await fetch(API_BASE + 'user.php?action=get_user_coupons', {
+            method: 'POST',
+            body: JSON.stringify({ user_id: currentUser.id }),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        
+        if (data.status === 'success') {
+            if (data.data.length === 0) {
+                container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-muted);">Aún no has canjeado cupones.</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            data.data.forEach(coupon => {
+                const card = document.createElement('div');
+                card.className = 'route-card'; // Reusing style
+                
+                // Formatear la fecha de canje
+                const redeemedDate = new Date(coupon.redeemed_at).toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                card.innerHTML = `
+                    <div class="route-header">
+                        <div class="route-title">${coupon.title}</div>
+                        <div class="route-points" style="color: var(--secondary-color)">
+                            <i class='bx bxs-coupon'></i>
+                        </div>
+                    </div>
+                    <div class="route-desc">${coupon.description}</div>
+                    ${coupon.restaurant_name ? `<div style="color: var(--text-muted); font-size: 0.9rem; margin: 0.5rem 0;"><i class='bx bxs-store'></i> ${coupon.restaurant_name}</div>` : ''}
+                    <div style="background: var(--surface-color); padding: 1rem; border-radius: var(--border-radius); margin: 1rem 0; text-align: center; border: 2px dashed var(--primary-color);">
+                        <strong style="color: var(--primary-color); font-size: 1.1rem; font-family: monospace;">${coupon.discount_code}</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Código de descuento</p>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); text-align: right;">Canjeado el ${redeemedDate}</p>
+                `;
+                container.appendChild(card);
+            });
+        } else {
+            container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-muted);">Error cargando cupones.</p>';
+        }
+    } catch (err) {
+        console.error('Error:', err);
+        container.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-muted);">Error al cargar tus cupones.</p>';
+    }
+}
+
 // Interactions
 async function completeRoute(routeId, isPremium = false) {
-    if (!currentUser) return alert("Inicia sesión para completar rutas y ganar puntos.");
+    if (!currentUser) return showNotification("Inicia sesión para completar rutas y ganar puntos.", 'warning');
     
     // Si es una ruta premium, verificar primero el estado actual del usuario
     if (isPremium) {
@@ -313,12 +426,12 @@ async function completeRoute(routeId, isPremium = false) {
                 localStorage.setItem('papm_user', JSON.stringify(currentUser));
                 
                 if (!currentUser.is_premium) {
-                    return alert("Esta es una ruta premium. Debes tener una suscripción premium para completarla.");
+                    return showNotification("Esta es una ruta premium. Debes tener una suscripción premium para completarla.", 'error');
                 }
             }
         } catch (err) {
             console.error('Error verificando estado premium:', err);
-            return alert("Error al verificar el estado de tu cuenta.");
+            return showNotification("Error al verificar el estado de tu cuenta.", 'error');
         }
     }
     
@@ -330,7 +443,13 @@ async function completeRoute(routeId, isPremium = false) {
         });
         const data = await res.json();
         
-        alert(data.message);
+        // Traducir mensaje de ruta iniciada
+        let message = data.message;
+        if (message === 'Route started! Follow the path on the map.') {
+            message = '¡Ruta iniciada! Sigue la ruta en el mapa.';
+        }
+        
+        showNotification(message, data.status === 'success' ? 'success' : 'error');
         if (data.status === 'success') {
             loadRoutes();
             if (window.location.pathname.includes('mapa.html')) {
@@ -338,14 +457,24 @@ async function completeRoute(routeId, isPremium = false) {
             }
         }
     } catch (err) {
-        alert("Error de conexión");
+        showNotification("Error de conexión", 'error');
     }
 }
 
 async function cancelRoute(routeId) {
-    if (!currentUser) return alert("Inicia sesión para cancelar la ruta.");
-    if (!confirm('¿Estás seguro de que quieres cancelar esta ruta?')) return;
+    if (!currentUser) return showNotification("Inicia sesión para cancelar la ruta.", 'warning');
+    
+    // Guardar el routeId para usar en la confirmación
+    window.pendingCancelRouteId = routeId;
+    showModal('cancelRoutePopup');
+}
 
+async function confirmCancelRoute() {
+    const routeId = window.pendingCancelRouteId;
+    if (!routeId) return;
+    
+    closeModal('cancelRoutePopup');
+    
     try {
         const res = await fetch(API_BASE + 'user.php?action=cancel_route', {
             method: 'POST',
@@ -354,7 +483,7 @@ async function cancelRoute(routeId) {
         });
         const data = await res.json();
 
-        alert(data.message);
+        showNotification(data.message, data.status === 'success' ? 'success' : 'error');
         if (data.status === 'success') {
             loadRoutes();
             if (window.location.pathname.includes('mapa.html')) {
@@ -363,12 +492,12 @@ async function cancelRoute(routeId) {
         }
     } catch (err) {
         console.error(err);
-        alert("Error de conexión");
+        showNotification("Error de conexión", 'error');
     }
 }
 
 async function buyCoupon(couponId) {
-    if (!currentUser) return alert("Inicia sesión para canjear cupones.");
+    if (!currentUser) return showNotification("Inicia sesión para canjear cupones.", 'warning');
     
     try {
         const res = await fetch(API_BASE + 'user.php?action=buy_coupon', {
@@ -378,13 +507,23 @@ async function buyCoupon(couponId) {
         });
         const data = await res.json();
         
-        alert(data.message);
+        // Traducir mensajes específicos
+        let message = data.message;
+        if (message === 'Not enough points') {
+            message = 'No tienes suficientes puntos para canjear este cupón';
+        } else if (message === 'Coupon purchased successfully') {
+            message = 'Cupón canjeado exitosamente';
+        }
+        
+        showNotification(message, data.status === 'success' ? 'success' : 'error');
         if (data.status === 'success') {
             currentUser.points = data.new_points;
             localStorage.setItem('papm_user', JSON.stringify(currentUser));
             updateUIForUser();
+            loadCoupons(); // Recargar lista de cupones disponibles
+            loadUserCoupons(); // Recargar cupones del usuario si está en la página
         }
     } catch (err) {
-        alert("Error de conexión");
+        showNotification("Error de conexión", 'error');
     }
 }

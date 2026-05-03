@@ -24,37 +24,15 @@
                 <i class='bx bxs-star'></i> <span id="userPoints">0</span> pts
             </div>
             <div class="profile-dropdown">
-                <button class="profile-icon" onclick="toggleProfileMenu()">
+                <button class="profile-icon" onclick="showModal('profilePopup')">
                     <i class='bx bx-user-circle'></i>
                 </button>
-                <div class="dropdown-menu" id="profileMenu">
-                    <div class="dropdown-item" onclick="viewProfile()">
-                        <i class='bx bx-user'></i>
-                        <span>Mi Perfil</span>
-                    </div>
-                    <div class="dropdown-item" onclick="logout()">
-                        <i class='bx bx-log-out'></i>
-                        <span>Cerrar Sesión</span>
-                    </div>
-                </div>
             </div>
         </div>
         <div class="auth-buttons" id="authButtons">
             <button class="btn btn-outline" onclick="showModal('loginModal')">Entrar</button>
         </div>
     </header>
-
-    <!-- Main Content Area -->
-    <main class="app-content">
-        <section class="section-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; text-align: center;">
-            <i class='bx bxs-time-five' style='font-size: 5rem; color: var(--primary-color); margin-bottom: 20px;'></i>
-            <h2>Suscripción disponible en el futuro</h2>
-            <p style="margin-top: 15px; color: var(--text-muted);">
-                Estamos trabajando duro para traerte las mejores ventajas con PAPM Premium. ¡Vuelve pronto para descubrir más!
-            </p>
-            <a href="premium.html" class="btn btn-primary mt-3" style="margin-top: 30px;">Volver</a>
-        </section>
-    </main>
 
     <!-- Bottom Navigation (Mobile First) -->
     <nav class="bottom-nav">
@@ -75,6 +53,18 @@
             <span>Premium</span>
         </a>
     </nav>
+
+    <!-- Main Content Area -->
+    <main class="app-content">
+        <section class="section-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; text-align: center;">
+            <i class='bx bxs-time-five' style='font-size: 5rem; color: var(--primary-color); margin-bottom: 20px;'></i>
+            <h2>Suscripción disponible en el futuro</h2>
+            <p style="margin-top: 15px; color: var(--text-muted);">
+                Estamos trabajando duro para traerte las mejores ventajas con PAPM Premium. ¡Vuelve pronto para descubrir más!
+            </p>
+            <a href="premium.html" class="btn btn-primary mt-3" style="margin-top: 30px;">Volver</a>
+        </section>
+    </main>
 
     <!-- Modals -->
     <!-- Login Modal -->
@@ -117,6 +107,51 @@
                 </div>
                 <button type="submit" class="btn btn-primary btn-block">Crear Cuenta</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Welcome Popup -->
+    <div class="modal welcome-popup" id="welcomePopup" onclick="closeModal('welcomePopup')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="closeModal('welcomePopup')">&times;</span>
+            <div class="welcome-popup-header">
+                <i class='bx bxs-badge-check'></i>
+                <h2>Bienvenido de nuevo</h2>
+                <p id="welcomePopupName"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Popup -->
+    <div class="modal notification-popup" id="notificationPopup" onclick="closeModal('notificationPopup')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="closeModal('notificationPopup')">&times;</span>
+            <div class="notification-popup-header">
+                <i id="notificationIcon" class='bx bxs-info-circle'></i>
+                <p id="notificationMessage"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Popup -->
+    <div class="modal profile-popup" id="profilePopup" onclick="closeModal('profilePopup')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="closeModal('profilePopup')">&times;</span>
+            <div class="profile-popup-header">
+                <i class='bx bxs-user-circle'></i>
+                <h2>Perfil</h2>
+                <p id="popupUserName"></p>
+            </div>
+            <div class="profile-popup-body">
+                <div class="popup-info">
+                    <span>Puntos</span>
+                    <strong id="popupUserPoints">0</strong>
+                </div>
+                <div class="profile-popup-actions">
+                    <a href="./perfil_usuario.html" class="btn btn-primary">Mi Perfil</a>
+                    <button class="btn btn-outline btn-block" onclick="logout(); closeModal('profilePopup')">Cerrar Sesión</button>
+                </div>
+            </div>
         </div>
     </div>
 

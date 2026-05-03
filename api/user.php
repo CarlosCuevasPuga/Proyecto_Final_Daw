@@ -282,6 +282,25 @@ if ($action == 'get_user_status') {
         http_response_code(400);
         echo json_encode(array("status" => "error", "message" => "User ID required"));
     }
+} elseif ($action == 'get_user_coupons') {
+    // Obtener los cupones que el usuario ha canjeado
+    $data = json_decode(file_get_contents("php://input"));
+    if (!empty($data->user_id)) {
+        $stmt = $conn->prepare("
+            SELECT c.id, c.title, c.description, c.points_cost, c.discount_code, c.restaurant_id, r.name as restaurant_name, uc.redeemed_at
+            FROM coupons c
+            JOIN user_coupons uc ON c.id = uc.coupon_id
+            LEFT JOIN restaurants r ON c.restaurant_id = r.id
+            WHERE uc.user_id = ?
+            ORDER BY uc.redeemed_at DESC
+        ");
+        $stmt->execute([$data->user_id]);
+        $coupons = $stmt->fetchAll();
+        echo json_encode(array("status" => "success", "data" => $coupons));
+    } else {
+        http_response_code(400);
+        echo json_encode(array("status" => "error", "message" => "User ID required"));
+    }
 } else {
     http_response_code(400);
     echo json_encode(array("status" => "error", "message" => "Invalid action"));

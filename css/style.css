@@ -160,6 +160,216 @@ body {
     font-size: 1.2rem;
 }
 
+.profile-popup .modal-content {
+    background: var(--surface-color);
+    color: var(--text-main);
+    border-radius: calc(var(--border-radius-lg) + 8px);
+    width: min(95vw, 380px);
+    padding: 1.5rem 1.25rem;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.18);
+    border: none;
+}
+
+.profile-popup .close-modal {
+    color: var(--text-muted);
+}
+
+.profile-popup-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    text-align: center;
+    padding: 1rem;
+    border-radius: calc(var(--border-radius-lg) - 8px);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: #ffffff;
+}
+
+.profile-popup-header i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.2rem;
+    height: 3.2rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    font-size: 1.75rem;
+}
+
+.profile-popup-header h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    letter-spacing: -0.03em;
+}
+
+.profile-popup-header p {
+    margin: 0;
+    opacity: 0.9;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 0.95rem;
+}
+
+.profile-popup-body {
+    display: grid;
+    gap: 1rem;
+}
+
+.popup-info {
+    text-align: center;
+    padding: 1rem;
+    border-radius: var(--border-radius-md);
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.popup-info span {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 0.35rem;
+}
+
+.popup-info strong {
+    font-size: 2rem;
+    color: var(--primary-dark);
+}
+
+.profile-popup-actions {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.profile-popup-actions .btn {
+    width: 100%;
+    min-height: 3.2rem;
+}
+
+.profile-popup .btn-primary {
+    background: var(--primary-color);
+    color: #ffffff;
+    border: none;
+    text-align: center;
+}
+
+.profile-popup .btn-primary:hover {
+    background: var(--primary-dark);
+}
+
+.profile-popup .btn-outline {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+.profile-popup .btn-outline:hover {
+    background: rgba(0, 184, 148, 0.1);
+}
+
+.profile-popup a.btn {
+    text-decoration: none;
+}
+
+.welcome-popup .modal-content {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    width: min(88vw, 340px);
+    padding: 1.5rem 1.25rem;
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 28px 60px rgba(0, 0, 0, 0.18);
+    text-align: center;
+    position: relative;
+}
+
+.welcome-popup .close-modal {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.welcome-popup-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.welcome-popup-header i {
+    font-size: 2.4rem;
+    width: 3rem;
+    height: 3rem;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.welcome-popup-header h2 {
+    margin: 0;
+    font-size: 1.55rem;
+    font-weight: 800;
+}
+
+.welcome-popup-header p {
+    margin: 0;
+    opacity: 0.95;
+    font-size: 1rem;
+}
+
+/* Notification Popup */
+.notification-popup .modal-content {
+    background: var(--surface-color);
+    color: var(--text-main);
+    width: min(90vw, 360px);
+    padding: 1.25rem 1rem;
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    position: relative;
+}
+
+.notification-popup .close-modal {
+    color: var(--text-muted);
+}
+
+.notification-popup-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.notification-popup-header i {
+    font-size: 2.2rem;
+    width: 2.8rem;
+    height: 2.8rem;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+}
+
+.notification-popup-header i.bxs-check-circle {
+    background: rgba(0, 184, 148, 0.1);
+    color: var(--primary-color);
+}
+
+.notification-popup-header i.bxs-error-circle,
+.notification-popup-header i.bxs-error {
+    background: rgba(225, 112, 85, 0.1);
+    color: var(--accent-color);
+}
+
+.notification-popup-header i.bxs-info-circle {
+    background: rgba(253, 203, 110, 0.1);
+    color: var(--secondary-color);
+}
+
+.notification-popup-header p {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
 /* Main Content */
 .app-content {
     padding: 1rem 1.5rem;
@@ -424,6 +634,13 @@ body {
     color: var(--text-muted);
 }
 
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+}
+
 .form-group {
     margin-bottom: 1rem;
 }
@@ -531,6 +748,18 @@ a { color: var(--primary-color); text-decoration: none; }
     padding: 0.85rem 1.4rem;
 }
 
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-5px); }
+    60% { transform: translateY(-3px); }
+}
+
 .no-user-message {
     background: #fff9f1;
     border: 1px solid #ffe8c6;
@@ -563,3 +792,68 @@ display: flex;
 justify-content: center;
 align-items: center;
 }  
+
+/* Cupones Usuario */
+.coupons-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 100%;
+}
+.coupon-card {
+    background: var(--surface-color);
+    border-radius: var(--border-radius-md);
+    padding: 1rem 1.5rem;
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.coupon-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+.coupon-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+.coupon-expiry {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+.coupon-points {
+    color: var(--accent-color);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+.coupon-actions .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+.coupon-actions .btn-primary {
+    background: var(--primary-color);
+    color: #ffffff;
+    border: none;
+}
+.coupon-actions .btn-primary:hover {
+    background: var(--primary-dark);
+}
+h2.no-coupons-title {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    color: var(--primary-dark);
+    text-align: center;
+}
+.no-coupons-message {
+    background: #fff9f1;
+    border: 1px solid #ffe8c6;
+    border-radius: var(--border-radius-md);
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 1rem;
+}

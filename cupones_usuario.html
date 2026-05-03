@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cupones - Passport Pal Motril</title>
-    <meta name="description" content="Tus cupones y recompensas.">
+    <title>Passport Pal Motril (PAPM)</title>
+    <meta name="description" content="Descubre rutas gastronómicas, consigue recompensas y disfruta de la mejor comida en Motril.">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <!-- CSS -->
@@ -36,7 +36,7 @@
 
     <!-- Bottom Navigation (Mobile First) -->
     <nav class="bottom-nav">
-        <a href="index.html" class="nav-item">
+        <a href="index.html" class="nav-item active">
             <i class='bx bxs-home'></i>
             <span>Inicio</span>
         </a>
@@ -44,7 +44,7 @@
             <i class='bx bxs-map-alt'></i>
             <span>Mapa</span>
         </a>
-        <a href="cupones.html" class="nav-item active">
+        <a href="cupones.html" class="nav-item">
             <i class='bx bxs-coupon'></i>
             <span>Cupones</span>
         </a>
@@ -54,15 +54,13 @@
         </a>
     </nav>
 
-    <!-- Main Content Area -->
-    <main class="app-content">
+    <main>
         <section class="section-container">
             <div class="section-header">
-                <h2>Tus Recompensas</h2>
+                <h2>Mis Cupones</h2>
             </div>
-            <div class="rewards-container" id="rewardsContainer">
-                <p>Inicia sesión para ver y canjear tus puntos por cupones de descuento.</p>
-                <!-- Cupones renderizados desde JS -->
+            <div class="coupons-list" id="userCouponsList">
+                <!-- Aquí se cargarán los cupones del usuario -->
             </div>
         </section>
     </main>
@@ -135,28 +133,48 @@
     </div>
 
     <!-- Profile Popup -->
-        <div class="modal profile-popup" id="profilePopup" onclick="closeModal('profilePopup')">
-            <div class="modal-content" onclick="event.stopPropagation()">
-                <span class="close-modal" onclick="closeModal('profilePopup')">&times;</span>
-                <div class="profile-popup-header">
-                    <i class='bx bxs-user-circle'></i>
-                    <h2>Perfil</h2>
-                    <p id="popupUserName"></p>
+    <div class="modal profile-popup" id="profilePopup" onclick="closeModal('profilePopup')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="closeModal('profilePopup')">&times;</span>
+            <div class="profile-popup-header">
+                <i class='bx bxs-user-circle'></i>
+                <h2>Perfil</h2>
+                <p id="popupUserName"></p>
+            </div>
+            <div class="profile-popup-body">
+                <div class="popup-info">
+                    <span>Puntos</span>
+                    <strong id="popupUserPoints">0</strong>
                 </div>
-                <div class="profile-popup-body">
-                    <div class="popup-info">
-                        <span>Puntos</span>
-                        <strong id="popupUserPoints">0</strong>
-                    </div>
-                    <div class="profile-popup-actions">
-                        <a href="./perfil_usuario.html" class="btn btn-primary">Mi Perfil</a>
-                        <button class="btn btn-outline btn-block" onclick="logout(); closeModal('profilePopup')">Cerrar Sesión</button>
-                    </div>
+                <div class="profile-popup-actions">
+                    <a href="./perfil_usuario.html" class="btn btn-primary">Mi Perfil</a>
+                    <button class="btn btn-outline btn-block" onclick="logout(); closeModal('profilePopup')">Cerrar Sesión</button>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Cancel Route Confirmation Popup -->
+    <div class="modal" id="cancelRoutePopup">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('cancelRoutePopup')">&times;</span>
+            <h2>¿Estás seguro?</h2>
+            <p>¿Quieres cancelar esta ruta? Perderás el progreso actual.</p>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeModal('cancelRoutePopup')">No</button>
+                <button class="btn btn-danger" onclick="confirmCancelRoute()">Sí, cancelar</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Scripts -->
-    <script src="js/app.js"></script>
+    <script src="./js/app.js"></script>
+    <script src="./js/perfil_usuario.js"></script>
+    <script>
+        // Cargar cupones del usuario cuando se cargue la página
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserCoupons();
+        });
+    </script>
 </body>
 </html>

@@ -24,25 +24,35 @@
                 <i class='bx bxs-star'></i> <span id="userPoints">0</span> pts
             </div>
             <div class="profile-dropdown">
-                <button class="profile-icon" onclick="toggleProfileMenu()">
+                <button class="profile-icon" onclick="showModal('profilePopup')">
                     <i class='bx bx-user-circle'></i>
                 </button>
-                <div class="dropdown-menu" id="profileMenu">
-                    <div class="dropdown-item">
-                        <i class='bx bx-user'></i>
-                        <span><a href="./perfil_usuario.html">Mi Perfil</a></span>
-                    </div>
-                    <div class="dropdown-item" onclick="logout()">
-                        <i class='bx bx-log-out'></i>
-                        <span>Cerrar Sesión</span>
-                    </div>
-                </div>
             </div>
         </div>
         <div class="auth-buttons" id="authButtons">
             <button class="btn btn-outline" onclick="showModal('loginModal')">Entrar</button>
         </div>
     </header>
+
+    <!-- Bottom Navigation (Mobile First) -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item active">
+            <i class='bx bxs-home'></i>
+            <span>Inicio</span>
+        </a>
+        <a href="mapa.html" class="nav-item">
+            <i class='bx bxs-map-alt'></i>
+            <span>Mapa</span>
+        </a>
+        <a href="cupones.html" class="nav-item">
+            <i class='bx bxs-coupon'></i>
+            <span>Cupones</span>
+        </a>
+        <a href="premium.html" class="nav-item">
+            <i class='bx bxs-crown'></i>
+            <span>Premium</span>
+        </a>
+    </nav>
 
     <!-- Main Content Area -->
     <main class="app-content">
@@ -70,26 +80,6 @@
         </section>
 
     </main>
-
-    <!-- Bottom Navigation (Mobile First) -->
-    <nav class="bottom-nav">
-        <a href="index.html" class="nav-item active">
-            <i class='bx bxs-home'></i>
-            <span>Inicio</span>
-        </a>
-        <a href="mapa.html" class="nav-item">
-            <i class='bx bxs-map-alt'></i>
-            <span>Mapa</span>
-        </a>
-        <a href="cupones.html" class="nav-item">
-            <i class='bx bxs-coupon'></i>
-            <span>Cupones</span>
-        </a>
-        <a href="premium.html" class="nav-item">
-            <i class='bx bxs-crown'></i>
-            <span>Premium</span>
-        </a>
-    </nav>
 
     <!-- Modals -->
     <!-- Login Modal -->
@@ -132,6 +122,65 @@
                 </div>
                 <button type="submit" class="btn btn-primary btn-block">Crear Cuenta</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Welcome Popup -->
+    <div class="modal welcome-popup" id="welcomePopup" onclick="closeModal('welcomePopup')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="closeModal('welcomePopup')">&times;</span>
+            <div class="welcome-popup-header">
+                <i class='bx bxs-badge-check'></i>
+                <h2>Bienvenido de nuevo</h2>
+                <p id="welcomePopupName"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Popup -->
+    <div class="modal notification-popup" id="notificationPopup" onclick="closeModal('notificationPopup')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="closeModal('notificationPopup')">&times;</span>
+            <div class="notification-popup-header">
+                <i id="notificationIcon" class='bx bxs-info-circle'></i>
+                <p id="notificationMessage"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Popup -->
+    <div class="modal profile-popup" id="profilePopup" onclick="closeModal('profilePopup')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="closeModal('profilePopup')">&times;</span>
+            <div class="profile-popup-header">
+                <i class='bx bxs-user-circle'></i>
+                <h2>Perfil</h2>
+                <p id="popupUserName"></p>
+            </div>
+            <div class="profile-popup-body">
+                <div class="popup-info">
+                    <span>Puntos</span>
+                    <strong id="popupUserPoints">0</strong>
+                </div>
+                <div class="profile-popup-actions">
+                    <a href="./perfil_usuario.html" class="btn btn-primary">Mi Perfil</a>
+                    <a href="./cupones_usuario.html" class="btn btn-primary">Mis Cupones</a>
+                    <button class="btn btn-outline btn-block" onclick="logout(); closeModal('profilePopup')">Cerrar Sesión</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Route Confirmation Popup -->
+    <div class="modal" id="cancelRoutePopup">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('cancelRoutePopup')">&times;</span>
+            <h2>¿Estás seguro?</h2>
+            <p>¿Quieres cancelar esta ruta? Perderás el progreso actual.</p>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeModal('cancelRoutePopup')">No</button>
+                <button class="btn btn-danger" onclick="confirmCancelRoute()">Sí, cancelar</button>
+            </div>
         </div>
     </div>
 
