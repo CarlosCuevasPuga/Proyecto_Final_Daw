@@ -15,7 +15,7 @@ if ($action == 'list') {
     // For each route, fetch its restaurants
     foreach ($routes as &$route) {
         $stmt_rest = $conn->prepare("
-            SELECT r.id, r.name, r.address, r.lat, r.lng, r.category, r.rating, rr.order_num 
+            SELECT r.id, r.name, r.address, r.lat, r.lng, r.category, rr.order_num 
             FROM restaurants r
             JOIN route_restaurants rr ON r.id = rr.restaurant_id
             WHERE rr.route_id = ?
