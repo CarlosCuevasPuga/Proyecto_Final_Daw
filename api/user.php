@@ -272,7 +272,7 @@ if ($action == 'get_user_status') {
 } elseif ($action == 'get_active_routes') {
     if (!empty($_GET['user_id'])) {
         $stmt = $conn->prepare("
-            SELECT r.id, r.name, r.description, r.reward_points, r.is_premium, r.estimated_duration_mins, uar.started_at
+            SELECT r.id, r.name, r.description, r.reward_points, r.is_premium, uar.started_at
             FROM routes r
             JOIN user_active_routes uar ON r.id = uar.route_id
             WHERE uar.user_id = ?
@@ -283,7 +283,7 @@ if ($action == 'get_user_status') {
         // For each route, fetch its restaurants
         foreach ($routes as &$route) {
             $stmt_rest = $conn->prepare("
-                SELECT r.id, r.name, r.address, r.lat, r.lng, r.category, r.rating
+                SELECT r.id, r.name, r.address, r.lat, r.lng, r.category
                 FROM restaurants r
                 JOIN route_restaurants rr ON r.id = rr.restaurant_id
                 WHERE rr.route_id = ?

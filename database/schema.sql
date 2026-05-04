@@ -33,7 +33,6 @@ CREATE TABLE IF NOT EXISTS routes (
     name VARCHAR(150) NOT NULL,
     description TEXT,
     reward_points INT DEFAULT 100,
-    estimated_duration_mins INT DEFAULT 60,
     is_premium BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
