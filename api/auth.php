@@ -56,7 +56,7 @@ if ($action == 'login') {
         }
 
         $password_hash = password_hash($data->password, PASSWORD_DEFAULT);
-        $stmt = $conn->prepare("INSERT INTO users (name, email, password_hash, points, is_premium) VALUES (?, ?, ?, 0, 0)");
+        $stmt = $conn->prepare("INSERT INTO users (name, email, password_hash, points, is_premium, is_admin) VALUES (?, ?, ?, 0, 0, 0)");
         if ($stmt->execute([$data->name, $data->email, $password_hash])) {
             http_response_code(201);
             echo json_encode(array("status" => "success", "message" => "User registered successfully"));

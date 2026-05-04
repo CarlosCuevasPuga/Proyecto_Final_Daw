@@ -6,18 +6,46 @@ const adminState = {
     users: []
 };
 
+// Validar acceso al panel de administración
+function validateAdminAccess() {
+    // Si no hay usuario logueado, redirigir a la página principal
+    if (!currentUser) {
+        console.warn('No authenticated user found. Redirecting to home page.');
+        window.location.href = 'index.html';
+        return false;
+    }
+
+    // Verificar si el usuario es administrador
+    if (!currentUser.is_admin) {
+        console.warn('User is not an administrator. Showing access denied.');
+        return false;
+    }
+
+    return true;
+}
+
 function initAdminPage() {
     const adminContent = document.getElementById('adminContent');
     const adminAccessDenied = document.getElementById('adminAccessDenied');
     const adminUserLabel = document.getElementById('adminUserLabel');
 
-    if (!currentUser || !currentUser.is_admin) {
+    // Validar acceso
+    const hasAccess = validateAdminAccess();
+
+    if (!hasAccess) {
+        // Mostrar mensaje de acceso denegado
         if (adminContent) adminContent.style.display = 'none';
         if (adminAccessDenied) adminAccessDenied.style.display = 'block';
-        if (adminUserLabel) adminUserLabel.textContent = currentUser ? `${currentUser.name || currentUser.email} (no es administrador)` : 'No has iniciado sesión';
+        if (adminUserLabel) {
+            adminUserLabel.textContent = currentUser 
+                ? `${currentUser.name || currentUser.email} (no es administrador)` 
+                : 'No has iniciado sesión';
+        }
+        renderAccessDeniedOptions();
         return;
     }
 
+    // El usuario es administrador - mostrar el panel
     if (adminContent) adminContent.style.display = 'block';
     if (adminAccessDenied) adminAccessDenied.style.display = 'none';
     if (adminUserLabel) adminUserLabel.textContent = `${currentUser.name || currentUser.email} (Administrador)`;
@@ -25,6 +53,23 @@ function initAdminPage() {
     loadAdminRoutes();
     loadAdminUsers();
     showAdminSection('routes');
+}
+
+function renderAccessDeniedOptions() {
+    const adminAccessDenied = document.getElementById('adminAccessDenied');
+    if (!adminAccessDenied) return;
+
+    const html = `
+        <div style="text-align: center;">
+            <h2>Acceso Denegado</h2>
+            <p style="margin: 1rem 0; font-size: 1.1rem;">Solo los administradores pueden usar este panel. Inicia sesión con una cuenta de administrador.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
+                <a href="index.html" class="btn btn-primary">Volver a la página principal</a>
+                <button onclick="logout()" class="btn btn-outline">Cerrar sesión</button>
+            </div>
+        </div>
+    `;
+    adminAccessDenied.innerHTML = html;
 }
 
 function showAdminSection(section) {
@@ -349,10 +394,21 @@ window.deleteAdminUser = deleteAdminUser;
 // Initialize admin page after app.js
 document.addEventListener('DOMContentLoaded', () => {
     if (window.location.pathname.includes('admin.html')) {
-        document.getElementById('tabRoutes').addEventListener('click', () => showAdminSection('routes'));
-        document.getElementById('tabUsers').addEventListener('click', () => showAdminSection('users'));
-        document.getElementById('openRouteModalBtn').addEventListener('click', () => openRouteModal());
-        document.getElementById('routeForm').addEventListener('submit', saveRoute);
-        initAdminPage();
+        // Esperar un pequeño tiempo para que checkSession se complete
+        setTimeout(() => {
+            // Agregar event listeners
+            const tabRoutes = document.getElementById('tabRoutes');
+            const tabUsers = document.getElementById('tabUsers');
+            const openRouteModalBtn = document.getElementById('openRouteModalBtn');
+            const routeForm = document.getElementById('routeForm');
+            
+            if (tabRoutes) tabRoutes.addEventListener('click', () => showAdminSection('routes'));
+            if (tabUsers) tabUsers.addEventListener('click', () => showAdminSection('users'));
+            if (openRouteModalBtn) openRouteModalBtn.addEventListener('click', () => openRouteModal());
+            if (routeForm) routeForm.addEventListener('submit', saveRoute);
+            
+            // Validar acceso e inicializar el panel
+            initAdminPage();
+        }, 100);
     }
 });

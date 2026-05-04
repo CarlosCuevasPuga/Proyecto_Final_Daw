@@ -317,6 +317,101 @@ if ($action == 'get_user_status') {
         http_response_code(400);
         echo json_encode(array("status" => "error", "message" => "User ID required"));
     }
+} elseif ($action == 'list_users') {
+    // Listar todos los usuarios (solo para administradores)
+    try {
+        $columns = "id, name, email, points, is_premium";
+        if (hasAdminColumn($conn)) {
+            $columns .= ", is_admin";
+        }
+        $stmt = $conn->prepare("SELECT $columns FROM users ORDER BY id ASC");
+        $stmt->execute();
+        $users = $stmt->fetchAll();
+        
+        // Asegurar que is_admin existe en todos los usuarios
+        foreach ($users as &$user) {
+            if (!isset($user['is_admin'])) {
+                $user['is_admin'] = 0;
+            }
+        }
+        
+        echo json_encode(array("status" => "success", "data" => $users));
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(array("status" => "error", "message" => "Error fetching users: " . $e->getMessage()));
+    }
+} elseif ($action == 'update_user') {
+    // Actualizar datos de un usuario (is_admin, is_premium)
+    $data = json_decode(file_get_contents("php://input"));
+    if (!empty($data->user_id)) {
+        try {
+            $updateFields = [];
+            $updateValues = [];
+            
+            // Verificar qué campos se van a actualizar
+            if (isset($data->is_premium)) {
+                $updateFields[] = "is_premium = ?";
+                $updateValues[] = $data->is_premium ? 1 : 0;
+            }
+            if (isset($data->is_admin) && hasAdminColumn($conn)) {
+                $updateFields[] = "is_admin = ?";
+                $updateValues[] = $data->is_admin ? 1 : 0;
+            }
+            
+            if (empty($updateFields)) {
+                http_response_code(400);
+                echo json_encode(array("status" => "error", "message" => "No fields to update"));
+                exit;
+            }
+            
+            $updateValues[] = $data->user_id;
+            $updateQuery = "UPDATE users SET " . implode(", ", $updateFields) . " WHERE id = ?";
+            $stmt = $conn->prepare($updateQuery);
+            $stmt->execute($updateValues);
+            
+            echo json_encode(array("status" => "success", "message" => "User updated successfully"));
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(array("status" => "error", "message" => "Error updating user: " . $e->getMessage()));
+        }
+    } else {
+        http_response_code(400);
+        echo json_encode(array("status" => "error", "message" => "User ID required"));
+    }
+} elseif ($action == 'delete_user') {
+    // Eliminar un usuario (solo administradores)
+    $data = json_decode(file_get_contents("php://input"));
+    if (!empty($data->user_id)) {
+        try {
+            $conn->beginTransaction();
+            
+            // Eliminar historial de rutas completadas
+            $stmt_del_routes = $conn->prepare("DELETE FROM user_completed_routes WHERE user_id = ?");
+            $stmt_del_routes->execute([$data->user_id]);
+            
+            // Eliminar rutas activas
+            $stmt_del_active = $conn->prepare("DELETE FROM user_active_routes WHERE user_id = ?");
+            $stmt_del_active->execute([$data->user_id]);
+            
+            // Eliminar cupones canjeados
+            $stmt_del_coupons = $conn->prepare("DELETE FROM user_coupons WHERE user_id = ?");
+            $stmt_del_coupons->execute([$data->user_id]);
+            
+            // Eliminar el usuario
+            $stmt_del_user = $conn->prepare("DELETE FROM users WHERE id = ?");
+            $stmt_del_user->execute([$data->user_id]);
+            
+            $conn->commit();
+            echo json_encode(array("status" => "success", "message" => "User deleted successfully"));
+        } catch (Exception $e) {
+            $conn->rollBack();
+            http_response_code(500);
+            echo json_encode(array("status" => "error", "message" => "Error deleting user: " . $e->getMessage()));
+        }
+    } else {
+        http_response_code(400);
+        echo json_encode(array("status" => "error", "message" => "User ID required"));
+    }
 } else {
     http_response_code(400);
     echo json_encode(array("status" => "error", "message" => "Invalid action"));
