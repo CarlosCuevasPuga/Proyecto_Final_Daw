@@ -13,6 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Auth Forms
     document.getElementById('loginForm').addEventListener('submit', handleLogin);
     document.getElementById('registerForm').addEventListener('submit', handleRegister);
+    
+    if (window.location.pathname.includes('mapa.html') && typeof loadActiveRoutesOnMap === 'function') {
+        loadActiveRoutesOnMap();
+    }
 });
 
 // Modals
@@ -182,7 +186,10 @@ async function handleLogin(e) {
                 welcomeName.textContent = data.user.name ? `¡Hola, ${data.user.name}!` : '';
             }
             showModal('welcomePopup');
-            setTimeout(() => closeModal('welcomePopup'), 2200);
+            setTimeout(() => {
+                closeModal('welcomePopup');
+                window.location.reload();
+            }, 2200);
         } else {
             showNotification(data.message || 'Error en el login', 'error');
         }
