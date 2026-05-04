@@ -67,13 +67,27 @@
                 <h2>Mapa de Rutas</h2>
             </div>
 
-            <!-- MAPA REAL -->
-            <div id="map" class= "map_container"></div>
+            <!-- Wrapper con botón de ubicación superpuesto -->
+            <div class="map-wrapper">
+                <div id="map" class="map_container"></div>
+                <!-- Botón para centrar en la ubicación del usuario -->
+                <button
+                    id="locateBtn"
+                    class="btn btn-locate"
+                    title="Mi ubicación"
+                    onclick="getUserLocation(null)"
+                >
+                    <i class='bx bxs-navigation'></i>
+                </button>
+            </div>
 
         </section>
     </main>
 
-    <!-- MODALS (sin tocar) -->
+    <!-- Toast de error de ubicación -->
+    <div class="location-toast" id="locationToast"></div>
+
+    <!-- MODALS -->
     <div class="modal" id="loginModal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal('loginModal')">&times;</span>

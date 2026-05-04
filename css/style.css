@@ -559,6 +559,23 @@ body {
     margin-top: 1rem;
 }
 
+.btn-locate {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    background: var(--primary-color);
+    color: #ffffff;
+    border: none;
+    border-radius: 50%;
+    width: 3.2rem;
+    height: 3.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-soft);
+    transition: background 0.2s, transform 0.2s;
+}
+
 /* Bottom Nav */
 .bottom-nav {
     position: fixed;
