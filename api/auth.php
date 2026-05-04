@@ -6,17 +6,34 @@ header("Access-Control-Allow-Methods: POST");
 
 include_once 'config/db.php';
 
+function hasAdminColumn($conn) {
+    try {
+        $stmt = $conn->query("SHOW COLUMNS FROM users LIKE 'is_admin'");
+        return $stmt && $stmt->fetch();
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
 if ($action == 'login') {
     $data = json_decode(file_get_contents("php://input"));
     if (!empty($data->email) && !empty($data->password)) {
-        $stmt = $conn->prepare("SELECT id, name, email, password_hash, points, is_premium FROM users WHERE email = ?");
+        $columns = "id, name, email, password_hash, points, is_premium";
+        if (hasAdminColumn($conn)) {
+            $columns .= ", is_admin";
+        }
+
+        $stmt = $conn->prepare("SELECT $columns FROM users WHERE email = ?");
         $stmt->execute([$data->email]);
         $user = $stmt->fetch();
 
         if ($user && password_verify($data->password, $user['password_hash'])) {
             unset($user['password_hash']);
+            if (!isset($user['is_admin'])) {
+                $user['is_admin'] = 0;
+            }
             echo json_encode(array("status" => "success", "message" => "Login successful", "user" => $user));
         } else {
             http_response_code(401);

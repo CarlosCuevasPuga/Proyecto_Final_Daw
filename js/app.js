@@ -70,6 +70,9 @@ function logout() {
     localStorage.removeItem('papm_user');
     currentUser = null;
     updateUIForUser();
+    if (typeof initAdminPage === 'function') {
+        initAdminPage();
+    }
     closeProfileMenu();
     closeModal('profilePopup');
     showNotification('Sesión cerrada correctamente', 'success');
@@ -106,7 +109,7 @@ function checkSession() {
 }
 
 async function refreshUserStatus() {
-    // Actualizar el estado del usuario desde la BD (especialmente el is_premium)
+    // Actualizar el estado del usuario desde la BD (especialmente el is_premium y is_admin)
     if (!currentUser) return;
     
     try {
@@ -123,12 +126,16 @@ async function refreshUserStatus() {
                 name: data.data.name,
                 email: data.data.email,
                 points: data.data.points,
-                is_premium: data.data.is_premium
+                is_premium: data.data.is_premium,
+                is_admin: data.data.is_admin || 0
             };
             localStorage.setItem('papm_user', JSON.stringify(currentUser));
             updateUIForUser();
             if (typeof renderProfile === 'function') {
                 renderProfile();
+            }
+            if (typeof initAdminPage === 'function') {
+                initAdminPage();
             }
             // Recargar las rutas para que se actualice el estado de premium
             loadRoutes();
@@ -179,6 +186,9 @@ async function handleLogin(e) {
             localStorage.setItem('papm_user', JSON.stringify(data.user));
             currentUser = data.user;
             updateUIForUser();
+            if (typeof initAdminPage === 'function') {
+                initAdminPage();
+            }
             loadUserCoupons(); // Cargar cupones si está en la página
             closeModal('loginModal');
             const welcomeName = document.getElementById('welcomePopupName');
@@ -240,12 +250,13 @@ async function loadRoutes() {
                 const activeRes = await fetch(API_BASE + 'user.php?action=get_active_routes&user_id=' + currentUser.id);
                 const activeData = await activeRes.json();
                 if (activeData.status === 'success') {
-                    const seenActive = new Set();
-                    activeRoutes = activeData.data.filter(route => {
-                        if (seenActive.has(route.id)) return false;
-                        seenActive.add(route.id);
-                        return true;
-                    }).map(route => route.id);
+                    const uniqueMap = new Map();
+                    activeData.data.forEach(route => {
+                        if (!uniqueMap.has(route.id)) {
+                            uniqueMap.set(route.id, route);
+                        }
+                    });
+                    activeRoutes = Array.from(uniqueMap.values());
                 }
                 const completedRes = await fetch(API_BASE + 'user.php?action=get_completed_routes&user_id=' + currentUser.id);
                 const completedData = await completedRes.json();
@@ -271,6 +282,7 @@ async function loadRoutes() {
                 const isPremium = route.is_premium == 1;
                 card.className = `route-card ${isPremium ? 'premium' : ''}`;
                 
+                const activeRoute = activeRoutes.find(active => active.id === route.id);
                 const canStartRoute = !isPremium || (currentUser && currentUser.is_premium);
                 let buttonClass = canStartRoute ? 'btn btn-outline' : 'btn btn-outline disabled';
                 let buttonText = isPremium && !canStartRoute ? '🔒 Solo Premium' : 'Iniciar Ruta';
@@ -284,8 +296,10 @@ async function loadRoutes() {
                         buttonText = '✓ Completada';
                         buttonDisabled = true;
                         buttonOnclick = '';
-                    } else if (activeRoutes.includes(route.id)) {
-                        activeBadge = '<div class="route-status">En Progreso</div>';
+                    } else if (activeRoute) {
+                        activeBadge = `
+                            <div class="route-status">En Progreso</div>
+                        `;
                         buttonClass = 'btn btn-danger';
                         buttonText = 'Cancelar Progreso';
                         buttonDisabled = false;

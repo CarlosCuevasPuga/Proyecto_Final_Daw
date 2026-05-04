@@ -7,15 +7,31 @@ include_once 'config/db.php';
 
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
+function hasAdminColumn($conn) {
+    try {
+        $stmt = $conn->query("SHOW COLUMNS FROM users LIKE 'is_admin'");
+        return $stmt && $stmt->fetch();
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
 if ($action == 'get_user_status') {
     // Obtener el estado actual del usuario desde la BD
     $data = json_decode(file_get_contents("php://input"));
     if (!empty($data->user_id)) {
-        $stmt = $conn->prepare("SELECT id, name, email, points, is_premium FROM users WHERE id = ?");
+        $columns = "id, name, email, points, is_premium";
+        if (hasAdminColumn($conn)) {
+            $columns .= ", is_admin";
+        }
+        $stmt = $conn->prepare("SELECT $columns FROM users WHERE id = ?");
         $stmt->execute([$data->user_id]);
         $user = $stmt->fetch();
         
         if ($user) {
+            if (!isset($user['is_admin'])) {
+                $user['is_admin'] = 0;
+            }
             echo json_encode(array("status" => "success", "data" => $user));
         } else {
             http_response_code(404);
@@ -256,7 +272,7 @@ if ($action == 'get_user_status') {
 } elseif ($action == 'get_active_routes') {
     if (!empty($_GET['user_id'])) {
         $stmt = $conn->prepare("
-            SELECT r.id, r.name, r.description, r.reward_points, r.is_premium
+            SELECT r.id, r.name, r.description, r.reward_points, r.is_premium, r.estimated_duration_mins, uar.started_at
             FROM routes r
             JOIN user_active_routes uar ON r.id = uar.route_id
             WHERE uar.user_id = ?
@@ -267,11 +283,11 @@ if ($action == 'get_user_status') {
         // For each route, fetch its restaurants
         foreach ($routes as &$route) {
             $stmt_rest = $conn->prepare("
-                SELECT r.id, r.name, r.address, r.lat, r.lng, r.category, r.rating, rr.order_num 
+                SELECT r.id, r.name, r.address, r.lat, r.lng, r.category, r.rating
                 FROM restaurants r
                 JOIN route_restaurants rr ON r.id = rr.restaurant_id
                 WHERE rr.route_id = ?
-                ORDER BY rr.order_num ASC
+                ORDER BY r.id ASC
             ");
             $stmt_rest->execute([$route['id']]);
             $route['restaurants'] = $stmt_rest->fetchAll();
