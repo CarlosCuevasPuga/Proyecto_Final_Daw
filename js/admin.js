@@ -10,14 +10,14 @@ const adminState = {
 function validateAdminAccess() {
     // Si no hay usuario logueado, redirigir a la página principal
     if (!currentUser) {
-        console.warn('No authenticated user found. Redirecting to home page.');
+        console.warn('No se encontró ningún usuario autenticado. Redirigiendo a la página principal.');
         window.location.href = 'index.html';
         return false;
     }
 
     // Verificar si el usuario es administrador
     if (!currentUser.is_admin) {
-        console.warn('User is not an administrator. Showing access denied.');
+        console.warn('El usuario no es administrador. Mostrando acceso denegado.');
         return false;
     }
 

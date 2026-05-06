@@ -35,11 +35,11 @@ if ($action == 'get_user_status') {
             echo json_encode(array("status" => "success", "data" => $user));
         } else {
             http_response_code(404);
-            echo json_encode(array("status" => "error", "message" => "User not found"));
+            echo json_encode(array("status" => "error", "message" => "Usuario no encontrado"));
         }
     } else {
         http_response_code(400);
-        echo json_encode(array("status" => "error", "message" => "User ID required"));
+        echo json_encode(array("status" => "error", "message" => "ID de usuario requerido"));
     }
 } elseif ($action == 'get_coupons') {
     $stmt = $conn->prepare("
@@ -77,25 +77,25 @@ if ($action == 'get_user_status') {
                     
                     $conn->commit();
                     $new_points = $user['points'] - $coupon['points_cost'];
-                    echo json_encode(array("status" => "success", "message" => "Coupon purchased successfully", "new_points" => $new_points));
+                    echo json_encode(array("status" => "success", "message" => "Cupón adquirido correctamente", "new_points" => $new_points));
                 } else {
                     $conn->rollBack();
                     http_response_code(400);
-                    echo json_encode(array("status" => "error", "message" => "Not enough points"));
+                    echo json_encode(array("status" => "error", "message" => "Puntos insuficientes"));
                 }
             } else {
                 $conn->rollBack();
                 http_response_code(404);
-                echo json_encode(array("status" => "error", "message" => "User or Coupon not found"));
+                echo json_encode(array("status" => "error", "message" => "Usuario o cupón no encontrado"));
             }
         } catch (Exception $e) {
             $conn->rollBack();
             http_response_code(500);
-            echo json_encode(array("status" => "error", "message" => "Transaction failed: " . $e->getMessage()));
+            echo json_encode(array("status" => "error", "message" => "Error en la transacción: " . $e->getMessage()));
         }
     } else {
         http_response_code(400);
-        echo json_encode(array("status" => "error", "message" => "Incomplete data"));
+        echo json_encode(array("status" => "error", "message" => "Datos incompletos"));
     }
 } elseif ($action == 'complete_route') {
     $data = json_decode(file_get_contents("php://input"));
@@ -105,7 +105,7 @@ if ($action == 'get_user_status') {
         $stmt_check_active->execute([$data->user_id, $data->route_id]);
         if (!$stmt_check_active->fetch()) {
             http_response_code(400);
-            echo json_encode(array("status" => "error", "message" => "Route not started or already completed"));
+            echo json_encode(array("status" => "error", "message" => "La ruta no ha sido iniciada o ya fue completada"));
             exit;
         }
         
@@ -122,7 +122,7 @@ if ($action == 'get_user_status') {
         
         if (!$destination) {
             http_response_code(404);
-            echo json_encode(array("status" => "error", "message" => "Route destination not found"));
+            echo json_encode(array("status" => "error", "message" => "Destino de la ruta no encontrado"));
             exit;
         }
         
@@ -132,7 +132,7 @@ if ($action == 'get_user_status') {
         
         if ($distance > $threshold) {
             http_response_code(400);
-            echo json_encode(array("status" => "error", "message" => "You must be at the destination to complete the route"));
+            echo json_encode(array("status" => "error", "message" => "Debes estar en el destino para completar la ruta"));
             exit;
         }
         
@@ -141,7 +141,7 @@ if ($action == 'get_user_status') {
         $stmt_check_completed->execute([$data->user_id, $data->route_id]);
         if ($stmt_check_completed->fetch()) {
             http_response_code(400);
-            echo json_encode(array("status" => "error", "message" => "Route already completed"));
+            echo json_encode(array("status" => "error", "message" => "La ruta ya ha sido completada"));
             exit;
         }
         
@@ -170,19 +170,19 @@ if ($action == 'get_user_status') {
                 $new_user_data = $stmt_np->fetch();
 
                 $conn->commit();
-                echo json_encode(array("status" => "success", "message" => "Route completed! You earned " . $route['reward_points'] . " points.", "new_points" => $new_user_data['points']));
+                echo json_encode(array("status" => "success", "message" => "¡Ruta completada! Has ganado " . $route["reward_points"] . " puntos.", "new_points" => $new_user_data['points']));
             } catch (Exception $e) {
                 $conn->rollBack();
                 http_response_code(500);
-                echo json_encode(array("status" => "error", "message" => "Transaction failed"));
+                echo json_encode(array("status" => "error", "message" => "Error en la transacción"));
             }
         } else {
             http_response_code(404);
-            echo json_encode(array("status" => "error", "message" => "Route not found"));
+            echo json_encode(array("status" => "error", "message" => "Ruta no encontrada"));
         }
     } else {
         http_response_code(400);
-        echo json_encode(array("status" => "error", "message" => "Incomplete data"));
+        echo json_encode(array("status" => "error", "message" => "Datos incompletos"));
     }
 } elseif ($action == 'start_route') {
     $data = json_decode(file_get_contents("php://input"));
@@ -192,7 +192,7 @@ if ($action == 'get_user_status') {
         $stmt_check_completed->execute([$data->user_id, $data->route_id]);
         if ($stmt_check_completed->fetch()) {
             http_response_code(400);
-            echo json_encode(array("status" => "error", "message" => "Route already completed"));
+            echo json_encode(array("status" => "error", "message" => "La ruta ya ha sido completada"));
             exit;
         }
         
@@ -201,7 +201,7 @@ if ($action == 'get_user_status') {
         $stmt_check_active->execute([$data->user_id, $data->route_id]);
         if ($stmt_check_active->fetch()) {
             http_response_code(400);
-            echo json_encode(array("status" => "error", "message" => "Route already started"));
+            echo json_encode(array("status" => "error", "message" => "La ruta ya ha sido iniciada"));
             exit;
         }
         
@@ -228,14 +228,14 @@ if ($action == 'get_user_status') {
             $stmt_a = $conn->prepare("INSERT INTO user_active_routes (user_id, route_id) VALUES (?, ?)");
             $stmt_a->execute([$data->user_id, $data->route_id]);
             
-            echo json_encode(array("status" => "success", "message" => "Route started! Follow the path on the map."));
+            echo json_encode(array("status" => "success", "message" => "¡Ruta iniciada! Sigue el camino en el mapa."));
         } else {
             http_response_code(404);
-            echo json_encode(array("status" => "error", "message" => "Route not found"));
+            echo json_encode(array("status" => "error", "message" => "Ruta no encontrada"));
         }
     } else {
         http_response_code(400);
-        echo json_encode(array("status" => "error", "message" => "Incomplete data"));
+        echo json_encode(array("status" => "error", "message" => "Datos incompletos"));
     }
 } elseif ($action == 'cancel_route') {
     $data = json_decode(file_get_contents("php://input"));
@@ -254,7 +254,7 @@ if ($action == 'get_user_status') {
         echo json_encode(array("status" => "success", "message" => "Progreso de ruta cancelado correctamente."));
     } else {
         http_response_code(400);
-        echo json_encode(array("status" => "error", "message" => "Incomplete data"));
+        echo json_encode(array("status" => "error", "message" => "Datos incompletos"));
     }
 } elseif ($action == 'get_completed_routes') {
     if (!empty($_GET['user_id'])) {
@@ -267,7 +267,7 @@ if ($action == 'get_user_status') {
         echo json_encode(array("status" => "success", "data" => $routes));
     } else {
         http_response_code(400);
-        echo json_encode(array("status" => "error", "message" => "User ID required"));
+        echo json_encode(array("status" => "error", "message" => "ID de usuario requerido"));
     }
 } elseif ($action == 'get_active_routes') {
     if (!empty($_GET['user_id'])) {
@@ -296,7 +296,7 @@ if ($action == 'get_user_status') {
         echo json_encode(array("status" => "success", "data" => $routes));
     } else {
         http_response_code(400);
-        echo json_encode(array("status" => "error", "message" => "User ID required"));
+        echo json_encode(array("status" => "error", "message" => "ID de usuario requerido"));
     }
 } elseif ($action == 'get_user_coupons') {
     // Obtener los cupones que el usuario ha canjeado
@@ -315,7 +315,7 @@ if ($action == 'get_user_status') {
         echo json_encode(array("status" => "success", "data" => $coupons));
     } else {
         http_response_code(400);
-        echo json_encode(array("status" => "error", "message" => "User ID required"));
+        echo json_encode(array("status" => "error", "message" => "ID de usuario requerido"));
     }
 } elseif ($action == 'list_users') {
     // Listar todos los usuarios (solo para administradores)
@@ -338,7 +338,7 @@ if ($action == 'get_user_status') {
         echo json_encode(array("status" => "success", "data" => $users));
     } catch (Exception $e) {
         http_response_code(500);
-        echo json_encode(array("status" => "error", "message" => "Error fetching users: " . $e->getMessage()));
+        echo json_encode(array("status" => "error", "message" => "Error al obtener usuarios: " . $e->getMessage()));
     }
 } elseif ($action == 'update_user') {
     // Actualizar datos de un usuario (is_admin, is_premium)
@@ -360,7 +360,7 @@ if ($action == 'get_user_status') {
             
             if (empty($updateFields)) {
                 http_response_code(400);
-                echo json_encode(array("status" => "error", "message" => "No fields to update"));
+                echo json_encode(array("status" => "error", "message" => "No hay campos para actualizar"));
                 exit;
             }
             
@@ -369,14 +369,14 @@ if ($action == 'get_user_status') {
             $stmt = $conn->prepare($updateQuery);
             $stmt->execute($updateValues);
             
-            echo json_encode(array("status" => "success", "message" => "User updated successfully"));
+            echo json_encode(array("status" => "success", "message" => "Usuario actualizado correctamente"));
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(array("status" => "error", "message" => "Error updating user: " . $e->getMessage()));
+            echo json_encode(array("status" => "error", "message" => "Error al actualizar el usuario: " . $e->getMessage()));
         }
     } else {
         http_response_code(400);
-        echo json_encode(array("status" => "error", "message" => "User ID required"));
+        echo json_encode(array("status" => "error", "message" => "ID de usuario requerido"));
     }
 } elseif ($action == 'delete_user') {
     // Eliminar un usuario (solo administradores)
@@ -402,18 +402,18 @@ if ($action == 'get_user_status') {
             $stmt_del_user->execute([$data->user_id]);
             
             $conn->commit();
-            echo json_encode(array("status" => "success", "message" => "User deleted successfully"));
+            echo json_encode(array("status" => "success", "message" => "Usuario eliminado correctamente"));
         } catch (Exception $e) {
             $conn->rollBack();
             http_response_code(500);
-            echo json_encode(array("status" => "error", "message" => "Error deleting user: " . $e->getMessage()));
+            echo json_encode(array("status" => "error", "message" => "Error al eliminar el usuario: " . $e->getMessage()));
         }
     } else {
         http_response_code(400);
-        echo json_encode(array("status" => "error", "message" => "User ID required"));
+        echo json_encode(array("status" => "error", "message" => "ID de usuario requerido"));
     }
 } else {
     http_response_code(400);
-    echo json_encode(array("status" => "error", "message" => "Invalid action"));
+    echo json_encode(array("status" => "error", "message" => "Acción no válida"));
 }
 ?>
